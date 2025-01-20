@@ -1,5 +1,83 @@
-<ul>
-  <li *ngFor=" let product of products">
-    {{ product.nombre }}
-  </li>
-</ul>
+<div class="container mt-5">
+
+  
+  <!-- Botón para Añadir Producto -->
+  <div>
+    <button class="btn btn-success" (click)="openAddProductModal()" data-bs-toggle="modal" data-bs-target="#editProductModal">
+      Añadir Producto
+    </button>
+  </div>
+
+  <!-- Lista de Productos -->
+  <div class="mt-4">
+    <div *ngFor="let product of products" class="card mb-3">
+      <div class="card-body">
+        <h5 class="card-title">{{ product.nombre }}</h5>
+        <p class="card-text">{{ product.descripcion }}</p>
+        <p class="card-text"><strong>Colores:</strong> {{ product.colores }}</p>
+        <button class="btn btn-warning" (click)="openEditProductModal(product)" data-bs-toggle="modal" data-bs-target="#editProductModal">
+          Editar Producto
+        </button>
+        <!-- Botón para Eliminar Producto -->
+        <button class="btn btn-danger ms-2" (click)="deleteProduct(product.id)">
+          Eliminar Producto
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal para Añadir/Editar Producto -->
+  <div class="modal fade" id="editProductModal" tabindex="-1" aria-labelledby="editProductModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="editProductModalLabel">
+            {{ productToUpdate.id === null ? 'Añadir Producto' : 'Editar Producto' }}
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <!-- Formulario dentro del modal -->
+          <div>
+            <label for="nombre">Nombre del Producto</label>
+            <input type="text" id="nombre" [(ngModel)]="productToUpdate.nombre" name="nombre" required class="form-control" />
+          </div>
+          
+          <div>
+            <label for="descripcion">Descripción del Producto</label>
+            <input type="text" id="descripcion" [(ngModel)]="productToUpdate.descripcion" name="descripcion" required class="form-control" />
+          </div>
+          
+          <div>
+            <label for="colores">Colores del Producto</label>
+            <input type="text" id="colores" [(ngModel)]="productToUpdate.colores" name="colores" required class="form-control" />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+          <button type="button" class="btn btn-primary" (click)="saveProduct()" data-bs-dismiss="modal">
+            {{ productToUpdate.id === null ? 'Añadir Producto' : 'Actualizar Producto' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast de éxito o error -->
+  <div class="toast-container position-fixed bottom-0 end-0 p-3" [ngClass]="{'d-none': !showToast}">
+    <div *ngIf="showToast"
+         class="toast"
+         [ngClass]="{
+           'text-bg-success': toastMessage.includes('exitosamente'),
+           'text-bg-danger': !toastMessage.includes('exitosamente'),
+           'show': showToast
+         }" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="d-flex">
+        <div class="toast-body">
+          {{ toastMessage }}
+        </div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" (click)="hideToast()" aria-label="Close"></button>
+      </div>
+    </div>
+  </div>
+</div>
