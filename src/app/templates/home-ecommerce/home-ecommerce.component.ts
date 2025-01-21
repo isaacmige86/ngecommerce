@@ -8,13 +8,15 @@ import { ProductosService } from 'src/app/services/productos.service';
 })
 export class HomeEcommerceComponent implements OnInit {
   products: any[] = [];
-  filteredProducts: any[] = []; // Lista de productos filtrados
-  searchTerm: string = ''; // Texto de búsqueda
+  filteredProducts: any[] = []; 
+  searchTerm: string = ''; 
 
-  productToUpdate: any = { id: null, nombre: '', descripcion: '', colores: '' }; // Para añadir o editar productos
+  productToUpdate: any = { id: null, nombre: '', descripcion: '', colores: '' }; 
 
-  showToast: boolean = false; // Controla la visibilidad del toast
-  toastMessage: string = ''; // El mensaje del toast
+  showToast: boolean = false; 
+  toastMessage: string = ''; 
+  productToDelete: any = null; 
+  showConfirmDeleteModal: boolean = false; 
 
   constructor(private productService: ProductosService) {}
 
@@ -23,23 +25,23 @@ export class HomeEcommerceComponent implements OnInit {
     this.filteredProducts = this.products; // Inicializamos los productos filtrados
   }
 
-  // Abre el modal para añadir un nuevo producto (establece los campos vacíos)
+  // Abre el modal para añadir un nuevo producto
   openAddProductModal() {
     this.productToUpdate = { id: null, nombre: '', descripcion: '', colores: '' };
   }
 
   // Abre el modal para editar un producto existente
   openEditProductModal(product: any) {
-    this.productToUpdate = { ...product }; // Carga los datos del producto en el modal
+    this.productToUpdate = { ...product }; 
   }
 
   // Método para añadir o actualizar el producto
   saveProduct() {
     if (this.productToUpdate.id === null) {
-      // Añadir producto
+
       this.addProduct();
     } else {
-      // Editar producto
+
       this.updateProduct();
     }
   }
@@ -47,15 +49,16 @@ export class HomeEcommerceComponent implements OnInit {
   addProduct() {
     if (this.productToUpdate.nombre && this.productToUpdate.descripcion) {
       this.productService.createProduct({
-        id: new Date().getTime(), // Asigna un id único
+        id: this.products.length + 1, //No es la forma mas efectiva de asignar id... pero como no hace uso de una BBDD 
         nombre: this.productToUpdate.nombre,
         descripcion: this.productToUpdate.descripcion,
         colores: this.productToUpdate.colores
       });
       this.products = this.productService.getProducts();
-      this.filterProducts(); // Filtra los productos tras añadir uno nuevo
-      this.productToUpdate = { id: null, nombre: '', descripcion: '', colores: '' }; // Resetea el formulario
+      this.filterProducts(); 
+      this.productToUpdate = { id: null, nombre: '', descripcion: '', colores: '' }; 
       this.showToastMessage('Producto añadido exitosamente', 'success');
+      // console.log(this.products);
     }
   }
 
@@ -67,21 +70,37 @@ export class HomeEcommerceComponent implements OnInit {
         colores: this.productToUpdate.colores
       });
       this.products = this.productService.getProducts();
-      this.filterProducts(); // Filtra los productos tras actualizar uno
-      this.productToUpdate = { id: null, nombre: '', descripcion: '', colores: '' }; // Resetea el formulario
+      this.filterProducts(); 
+      this.productToUpdate = { id: null, nombre: '', descripcion: '', colores: '' };
       this.showToastMessage('Producto actualizado exitosamente', 'success');
     }
   }
 
-  // Método para eliminar un producto
-  deleteProduct(productId: number) {
-    this.productService.deleteProduct(productId);
-    this.products = this.productService.getProducts(); // Refresca la lista de productos
-    this.filterProducts(); // Filtra los productos tras eliminar uno
-    this.showToastMessage('Producto eliminado exitosamente', 'danger');
+  // Abre el modal de confirmación de eliminación
+  openConfirmDeleteModal(product: any) {
+    // console.log(product);
+    this.productToDelete = product; 
+    this.showConfirmDeleteModal = true; 
   }
 
-  // Filtra los productos según el texto de búsqueda
+  // Método para eliminar un producto
+  deleteProduct() {
+    if (this.productToDelete) {
+      this.productService.deleteProduct(this.productToDelete.id);
+      this.products = this.productService.getProducts(); 
+      this.filterProducts(); 
+      this.productToDelete = null; 
+      this.showConfirmDeleteModal = false;
+      this.showToastMessage('Producto eliminado exitosamente', 'danger');
+    }
+  }
+
+  
+  closeConfirmDeleteModal() {
+    this.showConfirmDeleteModal = false; 
+  }
+
+  // Filtrar productos para mostrarlos 
   filterProducts() {
     if (this.searchTerm) {
       this.filteredProducts = this.products.filter(product =>
@@ -94,16 +113,16 @@ export class HomeEcommerceComponent implements OnInit {
     }
   }
 
-  // Muestra el toast con el mensaje correspondiente
+  // Mostrar el toast que recibe por parametros los mensajes de eliminar/editar/añadir
   showToastMessage(message: string, type: string) {
     this.toastMessage = message;
     this.showToast = true;
     setTimeout(() => {
       this.hideToast();
-    }, 3000); // El toast se oculta después de 3 segundos
+    }, 3000); 
   }
 
-  // Oculta el toast
+
   hideToast() {
     this.showToast = false;
   }

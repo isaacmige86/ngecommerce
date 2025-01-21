@@ -1,6 +1,8 @@
 <div class="container mt-5">
 
-  
+
+<!-- Contenedor para el botón y la barra de búsqueda -->
+<div class="d-flex justify-content-between align-items-center mb-3">
   <!-- Botón para Añadir Producto -->
   <div>
     <button class="btn btn-success" (click)="openAddProductModal()" data-bs-toggle="modal" data-bs-target="#editProductModal">
@@ -8,23 +10,57 @@
     </button>
   </div>
 
-  <!-- Lista de Productos -->
-  <div class="mt-4">
-    <div *ngFor="let product of products" class="card mb-3">
-      <div class="card-body">
-        <h5 class="card-title">{{ product.nombre }}</h5>
-        <p class="card-text">{{ product.descripcion }}</p>
-        <p class="card-text"><strong>Colores:</strong> {{ product.colores }}</p>
-        <button class="btn btn-warning" (click)="openEditProductModal(product)" data-bs-toggle="modal" data-bs-target="#editProductModal">
-          Editar Producto
-        </button>
-        <!-- Botón para Eliminar Producto -->
-        <button class="btn btn-danger ms-2" (click)="deleteProduct(product.id)">
+  <!-- Barra de búsqueda -->
+  <div class="w-50"> 
+    <input
+      type="text"
+      class="form-control"
+      placeholder="Buscar por nombre, descripción o color..."
+      [(ngModel)]="searchTerm"
+      (input)="filterProducts()"
+    />
+  </div>
+</div>
+
+<!-- Lista de Productos Filtrados -->
+<div class="mt-4">
+  <div *ngFor="let product of filteredProducts" class="card mb-3">
+    <div class="card-body">
+      <h5 class="card-title">{{ product.nombre }}</h5>
+      <p class="card-text">{{ product.descripcion }}</p>
+      <p class="card-text"><strong>Colores:</strong> {{ product.colores }}</p>
+      <button class="btn btn-warning" (click)="openEditProductModal(product)" data-bs-toggle="modal" data-bs-target="#editProductModal">
+        Editar Producto
+      </button>
+
+<button class="btn btn-danger ms-2" (click)="openConfirmDeleteModal(product)"data-bs-toggle="modal" data-bs-target="#deleteProductModal">
+  Eliminar Producto
+</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de Confirmación de Eliminación -->
+<div class="modal fade" id="deleteProductModal" tabindex="-1" aria-labelledby="deleteProductModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="deleteProductModalLabel">
           Eliminar Producto
-        </button>
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <!-- Mensaje de confirmación con el nombre del producto -->
+        <h5>¿Está seguro de que desea eliminar el producto "{{ productToDelete?.nombre }}"?</h5>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeConfirmDeleteModal()" data-bs-dismiss="modal">Cerrar</button>
+        <button type="button" class="btn btn-danger" (click)="deleteProduct()" data-bs-dismiss="modal">Eliminar</button>
       </div>
     </div>
   </div>
+</div>
 
   <!-- Modal para Añadir/Editar Producto -->
   <div class="modal fade" id="editProductModal" tabindex="-1" aria-labelledby="editProductModalLabel" aria-hidden="true">
